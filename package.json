@@ -1,6 +1,6 @@
 {
   "name": "hacked-prank",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A simple package that displays a 'hacked' message on the screen",
   "type": "module",
   "main": "dist/index.cjs",
