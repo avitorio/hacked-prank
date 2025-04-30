@@ -5,27 +5,47 @@ export function showHackedMessage(): void {
     function getRandomJapaneseChar(): string {
       return japanese[Math.floor(Math.random() * japanese.length)];
     }
-    function transformTextNodes(node: Node): void {
-      if (node.nodeType === Node.TEXT_NODE && node.nodeValue?.trim()) {
-        let index = 0;
-        const text = node.nodeValue.split('');
-        const interval = setInterval(() => {
-          if (index < text.length) {
-            text[index] = getRandomJapaneseChar();
-            node.nodeValue = text.join('');
-            index++;
+    function transformTextNodes(node: Node): { node: Node; text: string[]; index: number }[] {
+      const nodesToTransform: { node: Node; text: string[]; index: number }[] = [];
+      
+      function collectTextNodes(node: Node): void {
+        if (node.nodeType === Node.TEXT_NODE && node.nodeValue?.trim()) {
+          nodesToTransform.push({
+            node,
+            text: node.nodeValue.split(''),
+            index: 0
+          });
+        } else if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName !== 'SCRIPT' && (node as Element).tagName !== 'STYLE') {
+          for (const child of node.childNodes) {
+            collectTextNodes(child);
           }
-        }, 50); // Delay between replacing each character
-      } else if (node.nodeType === Node.ELEMENT_NODE && (node as Element).tagName !== 'SCRIPT' && (node as Element).tagName !== 'STYLE') {
-        for (const child of node.childNodes) {
-          transformTextNodes(child);
         }
       }
+      
+      collectTextNodes(node);
+      return nodesToTransform;
     }
-    transformTextNodes(document.body);
-    document.body.style.backgroundColor = 'black';
-    document.body.style.color = '#0f0';
-    document.body.style.fontFamily = "'Courier New', Courier, monospace";
+
+    const nodesToProcess = transformTextNodes(document.body);
+    const interval = setInterval(() => {
+      let allDone = true;
+      
+      for (const item of nodesToProcess) {
+        if (item.index < item.text.length) {
+          item.text[item.index] = getRandomJapaneseChar();
+          item.node.nodeValue = item.text.join('');
+          item.index++;
+          allDone = false;
+        }
+      }
+      
+      if (allDone) {
+        clearInterval(interval);
+      }
+    }, 50);
+    document.body.style.backgroundColor = 'black !important';
+    document.body.style.color = '#0f0 !important';
+    document.body.style.fontFamily = "'Courier New', Courier, monospace !important";
     const canvas = document.createElement('canvas');
     canvas.id = 'matrix-canvas';
     canvas.style.position = 'fixed';
@@ -67,7 +87,7 @@ export function showHackedMessage(): void {
       
       // Add "You've been hacked" message in the middle
       const hackedMessage = "YOU'VE BEEN HACKED";
-      ctx.font = "regular 48px 'Courier New', Courier, monospace";
+      ctx.font = "48px 'Courier New', Courier, monospace";
       ctx.fillStyle = "#00FF00"; // Red color for emphasis
       
       // Calculate text width to center it

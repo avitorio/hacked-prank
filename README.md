@@ -14,20 +14,12 @@ npm install hacked-prank
 ```javascript
 // The effect will start automatically when imported
 import 'hacked-prank';
-
-// Or if you need the function for manual control:
-import { showHackedMessage } from 'hacked-prank';
-showHackedMessage();
 ```
 
 ### CommonJS Import
 ```javascript
 // The effect will start automatically when required
 require('hacked-prank');
-
-// Or if you need the function for manual control:
-const { showHackedMessage } = require('hacked-prank');
-showHackedMessage();
 ```
 
 ### Browser (CDN)
